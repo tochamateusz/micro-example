@@ -1,0 +1,7 @@
+{
+  "host": "0.0.0.0",
+  "user": "root",
+  "password": "password",
+  "db_name": "simple_bank",
+  "port": 5432
+}
