@@ -32,6 +32,7 @@ func main() {
 					fmt.Printf("\n\n--------------Row [%d]--------------\n\n", i)
 					for fields, v := range rows {
 						fmt.Printf("[%+v]:\t%+v\n", fields, v)
+
 					}
 				}
 
