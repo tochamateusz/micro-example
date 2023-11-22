@@ -7,3 +7,11 @@ tasks:
   start-dev:
     cmds:
       - reflex -r '\.go$' -d none -s -- sh -c 'clear && go run ./cmd'
+
+  migrateup:
+    cmds:
+      - migrate -path ./db/migrations -database "postgresql://root:password@0.0.0.0:5432/simple_bank?sslmode=disable" -verbose up
+
+  migratedown:
+    cmds:
+      - migrate -path ./db/migrations -database "postgresql://root:password@0.0.0.0:5432/simple_bank?sslmode=disable" -verbose down

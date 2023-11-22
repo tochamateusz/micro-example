@@ -1,6 +1,3 @@
-CREATE DATABASE simple_bank;
-\connect simple_bank;
-
 CREATE TABLE IF NOT EXISTS "account" (
   "id" bigserial PRIMARY KEY,
   "owner" varchar NOT NULL,
