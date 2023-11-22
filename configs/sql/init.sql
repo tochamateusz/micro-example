@@ -1,3 +1,6 @@
+CREATE DATABASE simple_bank;
+\connect simple_bank;
+
 CREATE TABLE "account" (
   "id" bigserial PRIMARY KEY,
   "owner" varchar NOT NULL,
