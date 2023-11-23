@@ -15,3 +15,8 @@ tasks:
   migratedown:
     cmds:
       - migrate -path ./db/migrations -database "postgresql://root:password@0.0.0.0:5432/simple_bank?sslmode=disable" -verbose down
+
+  sqlc:
+    cmds:
+      - sqlc generate
+    
