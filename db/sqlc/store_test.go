@@ -85,11 +85,8 @@ func (s *StoreSuite) TestTransferTx() {
 	var n = 5
 
 	for i := 0; i < n; i++ {
-		txName := fmt.Sprintf("[Tx %d]", i)
-
 		go func() {
-			ctx := context.WithValue(context.Background(), txKey, txName)
-			result, err := store.TransferTx(ctx, TransferTxParams{
+			result, err := store.TransferTx(context.Background(), TransferTxParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,

@@ -18,8 +18,6 @@ func ProvideStore(db *sql.DB) *Store {
 	}
 }
 
-var txKey = struct{}{}
-
 type QueryFnc = func(*Queries) error
 
 func (store *Store) execTx(ctx context.Context, fn QueryFnc) error {
