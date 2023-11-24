@@ -61,8 +61,6 @@ func (s *AccountSuite) TestCreateAccount() {
 		Balance:  100,
 		Currency: "USD",
 	}
-	s.T()
-
 	account, err := s.testQueries.CreateAccount(context.Background(), arg)
 	require.NoError(s.T(), err)
 	require.NotEmpty(s.T(), account)
@@ -86,4 +84,47 @@ func (s *AccountSuite) TestGetAccount() {
 	require.Equal(s.T(), s.account.Currency, resultAccount.Currency)
 	require.Equal(s.T(), s.account.Balance, resultAccount.Balance)
 	require.Equal(s.T(), s.account.Owner, resultAccount.Owner)
+
+	require.Equal(s.T(), s.account.ID, resultAccount.ID)
+	require.Equal(s.T(), s.account.CreatedAt, resultAccount.CreatedAt)
+}
+
+func (s *AccountSuite) TestUpdateAccount() {
+	arg := UpdateAccountParams{
+		ID:      s.account.ID,
+		Balance: 101,
+	}
+
+	resultAccount, err := s.testQueries.UpdateAccount(context.Background(), arg)
+	require.NoError(s.T(), err)
+
+	require.NotEmpty(s.T(), resultAccount)
+
+	require.Equal(s.T(), s.account.Currency, resultAccount.Currency)
+	require.Equal(s.T(), resultAccount.Balance, arg.Balance)
+	require.Equal(s.T(), s.account.Owner, resultAccount.Owner)
+
+	require.Equal(s.T(), s.account.ID, resultAccount.ID)
+	require.Equal(s.T(), s.account.CreatedAt, resultAccount.CreatedAt)
+}
+
+func (s *AccountSuite) TestDeleteAccount() {
+	arg := CreateAccountParams{
+		Owner:    "tom",
+		Balance:  100,
+		Currency: "USD",
+	}
+
+	account, err := s.testQueries.CreateAccount(context.Background(), arg)
+
+	require.NoError(s.T(), err)
+	require.NotEmpty(s.T(), account)
+
+	err = s.testQueries.DeleteAccount(context.Background(), account.ID)
+	require.NoError(s.T(), err)
+
+	resultAccount, err := s.testQueries.GetAccountByID(context.Background(), account.ID)
+	require.Error(s.T(), err)
+	require.Empty(s.T(), resultAccount)
+
 }

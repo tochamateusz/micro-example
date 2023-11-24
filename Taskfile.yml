@@ -3,15 +3,15 @@ version: '3'
 tasks:
   start:
     cmds:
-      - go run ./cmd
+      - richgo run ./cmd
   start-dev:
     cmds:
-      - reflex -r '\.go$' -d none -s -- sh -c 'clear && go run ./cmd'
+      - reflex -r '\.go$' -d none -s -- sh -c 'clear && richgo run ./cmd'
 
   test-dev:
     cmds:
       - task test_migrateup
-      - reflex -r '\_test.go' -d none -s -- sh -c 'go test -v ./db/sqlc/...'
+      - reflex -r '\_test.go' -d none -s -- sh -c 'richgo test -v ./db/sqlc/...'
 
   test_migrateup:
     cmds:
