@@ -10,6 +10,11 @@ RETURNING *;
 SELECT * FROM accounts
 WHERE id = $1 LIMIT 1;
 
+-- name: GetAccountByIDForUpdate :one
+SELECT * FROM accounts
+WHERE id = $1 LIMIT 1
+FOR NO KEY UPDATE;
+
 -- name: GetAccounts :many
 SELECT * FROM accounts
 ORDER BY id

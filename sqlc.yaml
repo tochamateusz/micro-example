@@ -2,7 +2,7 @@ version: "2"
 sql: 
   - database:
       managed: false
-      uri: postgresql://root:password@0.0.0.0:5432/simple_bank
+      uri: postgresql://root:password_test@0.0.0.0:5432/simple_bank_test
     engine: postgresql
     queries: ./db/query/
     schema: ./db/migrations/
