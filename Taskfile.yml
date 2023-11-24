@@ -8,6 +8,10 @@ tasks:
     cmds:
       - reflex -r '\.go$' -d none -s -- sh -c 'clear && go run ./cmd'
 
+  test-dev:
+    cmds:
+      - reflex -r '\_test.go' -d none -s -- sh -c 'go test -v ./db/sqlc/...'
+
   migrateup:
     cmds:
       - migrate -path ./db/migrations -database "postgresql://root:password@0.0.0.0:5432/simple_bank?sslmode=disable" -verbose up
