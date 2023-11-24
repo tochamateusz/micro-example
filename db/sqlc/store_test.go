@@ -58,8 +58,10 @@ func (s *StoreSuite) AfterTest(suiteName, testName string) {
 }
 
 func (s *StoreSuite) TestTransferTx() {
+
 	db, err := s.db.DB()
 	require.NoError(s.T(), err)
+
 	store := ProvideStore(db)
 
 	arg := CreateAccountParams{
@@ -136,8 +138,6 @@ func (s *StoreSuite) TestTransferTx() {
 		_, err = store.GetEntryByID(context.Background(), result.ToEntry.ID)
 		require.NoError(s.T(), err)
 
-		//TODO: Update
-
 		fromAccount, err := store.GetAccountByID(context.Background(), result.Transfer.FromAccountID)
 		require.NoError(s.T(), err)
 		require.NotEmpty(s.T(), fromAccount)
@@ -151,5 +151,69 @@ func (s *StoreSuite) TestTransferTx() {
 		require.Equal(s.T(), toAccount.Balance, account2.Balance+int64((i+1)*10))
 
 	}
+
+}
+
+func (s *StoreSuite) TestTransferTxDeadLock() {
+
+	db, err := s.db.DB()
+	require.NoError(s.T(), err)
+
+	store := ProvideStore(db)
+
+	arg := CreateAccountParams{
+		Owner:    "tom",
+		Balance:  100,
+		Currency: "USD",
+	}
+	account1, err := s.testQueries.CreateAccount(context.Background(), arg)
+	require.NoError(s.T(), err)
+
+	arg = CreateAccountParams{
+		Owner:    "tom2",
+		Balance:  0,
+		Currency: "USD",
+	}
+	account2, err := s.testQueries.CreateAccount(context.Background(), arg)
+	require.NoError(s.T(), err)
+
+	errs := make(chan error)
+
+	var amount int64 = 10
+	var n = 4
+
+	for i := 0; i < n; i++ {
+		fromAccountID := account1.ID
+		toAccountID := account2.ID
+
+		if i%2 == 1 {
+			fromAccountID = account2.ID
+			toAccountID = account1.ID
+		}
+
+		go func() {
+			_, err := store.TransferTx(context.Background(), TransferTxParams{
+				FromAccountID: fromAccountID,
+				ToAccountID:   toAccountID,
+				Amount:        amount,
+			})
+
+			errs <- err
+		}()
+	}
+
+	for i := 0; i < n; i++ {
+		err := <-errs
+		require.NoError(s.T(), err)
+	}
+
+	updateAccount1, err := store.GetAccountByID(context.Background(), account1.ID)
+	require.NoError(s.T(), err)
+
+	updateAccount2, err := store.GetAccountByID(context.Background(), account2.ID)
+	require.NoError(s.T(), err)
+
+	require.Equal(s.T(), account1.Balance, updateAccount1.Balance)
+	require.Equal(s.T(), account2.Balance, updateAccount2.Balance)
 
 }
