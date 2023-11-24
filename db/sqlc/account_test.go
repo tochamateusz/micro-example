@@ -174,6 +174,19 @@ func (s *AccountSuite) TestListAccount() {
 	require.NotEmpty(s.T(), resultAccount)
 
 	require.Equal(s.T(), len(resultAccount), 5)
-	require.Equal(s.T(), accounts[0:5], resultAccount)
+	require.Equal(s.T(), accounts[arg.Offset:arg.Limit+arg.Offset], resultAccount)
+
+	arg = GetAccountsParams{
+		Limit:  5,
+		Offset: 2,
+	}
+
+	resultAccount, err = s.testQueries.GetAccounts(context.Background(), arg)
+
+	require.NoError(s.T(), err)
+	require.NotEmpty(s.T(), resultAccount)
+
+	require.Equal(s.T(), len(resultAccount), 5)
+	require.Equal(s.T(), accounts[arg.Offset:arg.Limit+arg.Offset], resultAccount)
 
 }
