@@ -10,7 +10,16 @@ tasks:
 
   test-dev:
     cmds:
+      - task test_migrateup
       - reflex -r '\_test.go' -d none -s -- sh -c 'go test -v ./db/sqlc/...'
+
+  test_migrateup:
+    cmds:
+      - migrate -path ./db/migrations -database "postgresql://root:password_test@0.0.0.0:5432/simple_bank_test?sslmode=disable" -verbose up
+
+  test_migratedown:
+    cmds:
+      - migrate -path ./db/migrations -database "postgresql://root:password_test@0.0.0.0:5432/simple_bank_test?sslmode=disable" -verbose down
 
   migrateup:
     cmds:

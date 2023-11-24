@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgresddlx
+    restart: always
+    container_name: db
+    ports: 
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: password_test
+      POSTGRES_USER: root
+    volumes:
+      - ./configs/sql/init.test.sql:/docker-entrypoint-initdb.d/init.sql
+

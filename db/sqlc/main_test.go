@@ -12,17 +12,12 @@ import (
 
 var testQueries *Queries
 
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:password@0.0.0.0:5432/simple_bank?sslmode=disable"
-)
-
 func TestMain(m *testing.M) {
 
-	dns := fmt.Sprintf("host=0.0.0.0 user=root password=password dbname=simple_bank port=5432 sslmode=disable")
+	dns := fmt.Sprintf("host=0.0.0.0 user=root password=password_test dbname=simple_bank_test port=5432 sslmode=disable")
 
 	db, err := gorm.Open(postgres.Open(dns), &gorm.Config{})
-  
+
 	if err != nil {
 		log.Fatal("cannot connect to DB", err)
 	}
