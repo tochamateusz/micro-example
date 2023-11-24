@@ -15,7 +15,6 @@ import (
 type AccountSuite struct {
 	suite.Suite
 	db          *gorm.DB
-	account     Account
 	testQueries *Queries
 }
 
@@ -42,12 +41,13 @@ func (s *AccountSuite) SetupSuite() {
 
 func (s *AccountSuite) TearDownSuite() {
 	log.Println("TearDownSuite()")
-	s.db.Raw("TRUNCATE accounts CASCADE")
+	s.db.Exec("TRUNCATE accounts CASCADE")
 }
 
 // run before each test
 func (s *AccountSuite) BeforeTest(suiteName, testName string) {
 	log.Println("BeforeTest()", suiteName, testName)
+	s.db.Exec("TRUNCATE accounts CASCADE")
 }
 
 // run after each test
@@ -71,41 +71,60 @@ func (s *AccountSuite) TestCreateAccount() {
 
 	require.NotZero(s.T(), account.ID)
 	require.NotZero(s.T(), account.CreatedAt)
-
-	s.account = account
 }
 
 func (s *AccountSuite) TestGetAccount() {
-	resultAccount, err := s.testQueries.GetAccountByID(context.Background(), s.account.ID)
+	arg := CreateAccountParams{
+		Owner:    "tom",
+		Balance:  100,
+		Currency: "USD",
+	}
+
+	account, err := s.testQueries.CreateAccount(context.Background(), arg)
+	require.NoError(s.T(), err)
+	require.NotEmpty(s.T(), account)
+
+	resultAccount, err := s.testQueries.GetAccountByID(context.Background(), account.ID)
 	require.NoError(s.T(), err)
 
 	require.NotEmpty(s.T(), resultAccount)
 
-	require.Equal(s.T(), s.account.Currency, resultAccount.Currency)
-	require.Equal(s.T(), s.account.Balance, resultAccount.Balance)
-	require.Equal(s.T(), s.account.Owner, resultAccount.Owner)
+	require.Equal(s.T(), account.Currency, resultAccount.Currency)
+	require.Equal(s.T(), account.Balance, resultAccount.Balance)
+	require.Equal(s.T(), account.Owner, resultAccount.Owner)
 
-	require.Equal(s.T(), s.account.ID, resultAccount.ID)
-	require.Equal(s.T(), s.account.CreatedAt, resultAccount.CreatedAt)
+	require.Equal(s.T(), account.ID, resultAccount.ID)
+	require.Equal(s.T(), account.CreatedAt, resultAccount.CreatedAt)
 }
 
 func (s *AccountSuite) TestUpdateAccount() {
-	arg := UpdateAccountParams{
-		ID:      s.account.ID,
+
+	arg := CreateAccountParams{
+		Owner:    "tom",
+		Balance:  100,
+		Currency: "USD",
+	}
+
+	account, err := s.testQueries.CreateAccount(context.Background(), arg)
+	require.NoError(s.T(), err)
+	require.NotEmpty(s.T(), account)
+
+	updateArgs := UpdateAccountParams{
+		ID:      account.ID,
 		Balance: 101,
 	}
 
-	resultAccount, err := s.testQueries.UpdateAccount(context.Background(), arg)
+	resultAccount, err := s.testQueries.UpdateAccount(context.Background(), updateArgs)
 	require.NoError(s.T(), err)
 
 	require.NotEmpty(s.T(), resultAccount)
 
-	require.Equal(s.T(), s.account.Currency, resultAccount.Currency)
-	require.Equal(s.T(), resultAccount.Balance, arg.Balance)
-	require.Equal(s.T(), s.account.Owner, resultAccount.Owner)
+	require.Equal(s.T(), account.Currency, resultAccount.Currency)
+	require.Equal(s.T(), resultAccount.Balance, updateArgs.Balance)
+	require.Equal(s.T(), account.Owner, resultAccount.Owner)
 
-	require.Equal(s.T(), s.account.ID, resultAccount.ID)
-	require.Equal(s.T(), s.account.CreatedAt, resultAccount.CreatedAt)
+	require.Equal(s.T(), account.ID, resultAccount.ID)
+	require.Equal(s.T(), account.CreatedAt, resultAccount.CreatedAt)
 }
 
 func (s *AccountSuite) TestDeleteAccount() {
@@ -127,4 +146,32 @@ func (s *AccountSuite) TestDeleteAccount() {
 	require.Error(s.T(), err)
 	require.Empty(s.T(), resultAccount)
 
+}
+
+func (s *AccountSuite) TestListAccount() {
+	var accounts []Account
+
+	for i := 0; i < 10; i++ {
+		arg := CreateAccountParams{
+			Owner:    fmt.Sprintf("tom_%d", i),
+			Balance:  100 + int64(i),
+			Currency: "USD",
+		}
+		account, err := s.testQueries.CreateAccount(context.Background(), arg)
+		require.NoError(s.T(), err)
+		accounts = append(accounts, account)
+	}
+
+	require.NotEmpty(s.T(), accounts)
+
+	arg := GetAccountsParams{
+		Limit:  5,
+		Offset: 0,
+	}
+
+	resultAccount, err := s.testQueries.GetAccounts(context.Background(), arg)
+	require.NoError(s.T(), err)
+	require.NotEmpty(s.T(), resultAccount)
+
+	require.Equal(s.T(), len(resultAccount), 5)
 }
