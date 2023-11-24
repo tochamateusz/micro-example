@@ -11,7 +11,13 @@ tasks:
   test-dev:
     cmds:
       - task test_migrateup
-      - reflex -r '\_test.go' -d none -s -- sh -c 'richgo test -v ./db/sqlc/...'
+      - reflex -r '\_test.go' -d none -s -- sh -c 'richgo test -v -cover -coverprofile=c.out ./db/sqlc/...'
+
+  test-covarage:
+    cmds:
+      - task test_migrateup
+      - go tool cover -html=c.out
+
 
   test_migrateup:
     cmds:

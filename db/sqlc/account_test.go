@@ -174,4 +174,6 @@ func (s *AccountSuite) TestListAccount() {
 	require.NotEmpty(s.T(), resultAccount)
 
 	require.Equal(s.T(), len(resultAccount), 5)
+	require.Equal(s.T(), accounts[0:5], resultAccount)
+
 }
